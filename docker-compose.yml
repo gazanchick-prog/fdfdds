@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: minon-shop-bot
+    env_file: .env
+    volumes:
+      - ./sessions:/app/sessions
+      - ./sifon_market.db:/app/sifon_market.db
+    restart: unless-stopped
+    networks:
+      - minon-network
+
+  # Опционально: PostgreSQL для production
+  postgres:
+    image: postgres:15-alpine
+    container_name: minon-postgres
+    environment:
+      POSTGRES_DB: minon_shop
+      POSTGRES_USER: minon_user
+      POSTGRES_PASSWORD: secure_password_change_me
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - minon-network
+    # Раскомментировать если используется PostgreSQL
+
+networks:
+  minon-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
+# Использование:
+# docker-compose up -d       # запуск в фоне
+# docker-compose logs -f bot # логи бота
+# docker-compose down        # остановка
